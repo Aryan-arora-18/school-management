@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card p-4 shadow" style="max-width: 400px; margin: auto;">
+  <h3 class="text-center mb-3">Login</h3>
+
+  {% if error %}
+    <p class="text-danger text-center">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <label>Username</label>
+    <input type="text" class="form-control mb-3" name="username" required />
+
+    <label>Password</label>
+    <input type="password" class="form-control mb-3" name="password" required />
+
+    <button class="btn btn-success w-100" type="submit">Login</button>
+
+    <p class="text-center mt-2">
+      No account?
+      <a href="/register">Register</a>
+    </p>
+  </form>
+</div>
+
+{% endblock %}

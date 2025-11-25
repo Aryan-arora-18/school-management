@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width="device-width", initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+      <h1>Add Student</h1>
+   <form action="" method="POST">
+    {% csrf_token  %}
+    {{form.as_p}}
+    <input type="text" name="name" placeholder="Student_Name" required><br><br>
+    <input type="number" name="age" placeholder="Age" required><br><br>
+    <input type="text" name="city" placeholder="City" required><br><br>
+    <button type="submit">save</button>
+   </form>
+    <h1>Student list</h1>
+    {% for s in Students %}
+        <p>{{s.name}} <br> {{s.age}} <br> {{s.city}}</p>  
+        <a href="{% url 'edit_students' s.id %}">edit</a> 
+
+        <a href="{% url 'delete_students' s.id %}">Delete</a> 
+    {% empty %}
+        <p>Student not found</p>
+    {% endfor %}
+</body>
+</html>

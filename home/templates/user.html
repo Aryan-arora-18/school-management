@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block content %}
+
+<h2 class="text-center mb-4">User List</h2>
+<h2 class="text-center mb-4">Here you can  Delete User data </data></h2>
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th>User Id</th>
+      <th>User Name</th>
+      <th>User Email</th>
+      <th>User role</th>
+      <th>Status</th>
+<th>Delete</th>
+
+
+    </tr>
+  </thead>
+
+  <tbody>
+  {% for u in users %}
+<tr>
+    <td>{{ u.id }}</td>
+    <td>{{ u.username }}</td>
+    <td>{{ u.email }}</td>
+    <td>{{ u.role.role|default:"No Role" }}</td>
+    <td>
+        {% if u.is_active %}
+            <span class="badge bg-success">Active</span>
+        {% else %}
+            <span class="badge bg-danger">Inactive</span>
+        {% endif %}
+    </td>
+    {% if u.role and u.role.role in "admin" %}
+    <td><a href="{% url 'delete_user' u.id %}" class="btn btn-danger btn-sm">Delete</a></td>
+    {% endif %}
+</tr>
+{% endfor %}  
+  </tbody>
+</table>
+
+{% if users|length == 0 %}
+<p class="text-center text-danger">No User Found.</p>
+{% endif %} {% endblock %}

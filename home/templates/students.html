@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center mb-4">Student List</h2>
+<h2 class="text-center mb-4">Here you can Update or Delete Students data</h2>
+
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th>Student_Id</th>
+      <th>Student_Name</th>
+      <th>Age</th>
+      <th>City</th>
+      <th>School Name</th>
+      <th>Added By</th>
+      <th>Updated By</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.id }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.age }}</td>
+      <td>{{ s.city }}</td>
+      <td>{{ s.school.sch_name }}</td>
+      <td>{{ s.uid.username }}</td>
+      <td>{{ s.updated_by.username }}</td>
+
+      <td>
+        <a href="{% url 'edit_students' s.id %}" class="btn btn-warning btn-sm">Edit</a>
+        <a href="{% url 'delete_students' s.id %}" class="btn btn-danger btn-sm">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if students|length == 0 %}
+<p class="text-center text-danger">No Students Found.</p>
+{% endif %}
+{% endblock %}

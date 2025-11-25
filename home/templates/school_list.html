@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center mb-4">School List</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>School Name</th>
+            <th>City</th>
+            <th>Principal</th>
+            <th>Total Teachers</th>
+            <th>Total Students</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for s in school %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.city }}</td>
+
+            <td>
+                {% if s.principal %}
+                    {{ s.principal.username }}
+                {% else %}
+                    <span class="text-danger">Not Assigned</span>
+                {% endif %}
+            </td>
+
+            <td>{{ s.teachers.count }}</td>
+            <td>{{ s.students.count }}</td>
+
+            <td>
+                <a href="{% url 'view_school' s.id %}" class="btn btn-info btn-sm">View</a>
+                <a href="{% url 'edit_school' s.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'delete_school' s.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if schools|length == 0 %}
+<p class="text-center text-danger">No schools found.</p>
+{% endif %}
+
+{% endblock %}
