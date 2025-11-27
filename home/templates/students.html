@@ -13,7 +13,6 @@
       <th>City</th>
       <th>School Name</th>
       <th>Added By</th>
-      <th>Updated By</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -26,8 +25,7 @@
       <td>{{ s.age }}</td>
       <td>{{ s.city }}</td>
       <td>{{ s.school.sch_name }}</td>
-      <td>{{ s.uid.username }}</td>
-      <td>{{ s.updated_by.username }}</td>
+      <td>{{ s.add_uid.username }}</td>
 
       <td>
         <a href="{% url 'edit_students' s.id %}" class="btn btn-warning btn-sm">Edit</a>

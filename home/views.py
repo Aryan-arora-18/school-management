@@ -6,6 +6,10 @@ from .models import Students, School, Role
 from .forms import StudentForm
 from django.contrib import messages
 User = get_user_model()
+from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.models import User
+from .models import Role
 
 
 from django.contrib import messages
@@ -15,7 +19,7 @@ from .models import Role, School
 
 def register_students(request):
     schools = School.objects.all()
-    valid_roles = ["admin", "principal", "teacher"]
+    valid_roles = ["principal", "teacher"]
 
     if request.method == "POST":
         username = request.POST.get("user", "").strip()
@@ -168,8 +172,34 @@ def get_students(request):
 
 
 def get_user(request):
-    users = User.objects.filter(is_active=True).select_related("role_profile")
-    return render(request, "user.html", {"users": users})
+    if request.user.is_authenticated:
+        logged_role = Role.objects.get(user=request.user)
+        logged_school = getattr(request.user.role_profile, "school", None)
+
+        if logged_role.role == "admin":
+            users = User.objects.exclude(
+                username="admin",
+                role_profile__role="admin"
+            ).select_related("role_profile")
+        elif logged_role.role == "principal":
+            users = User.objects.filter(
+                role_profile__school=logged_school
+            ).select_related("role_profile")
+        elif logged_role.role == "teacher":
+            users = User.objects.filter(
+                role_profile__isnull=True,
+                role_profile__school=logged_school
+            ).select_related("role_profile")
+        else:
+            users = User.objects.none()
+    else:
+        users = User.objects.all().select_related("role_profile")
+
+    context = {
+        "users": users,
+    }
+    return render(request, "user.html", context)
+
 
 
 def edit_students(request, id):
@@ -184,11 +214,12 @@ def edit_students(request, id):
 
 
 def delete_students(request, id):
-    student = get_object_or_404(Students, id=id)
+    user = get_object_or_404(User, id=id)
+    student = get_object_or_404(Students, id= id)
     my_role = get_role(request.user)
 
     if my_role == "admin":
-        student.delete()
+        user.delete()
         return redirect("students")
 
     if my_role == "principal":
@@ -207,33 +238,54 @@ def delete_students(request, id):
 
 
 
-def delete_user(request, id):
-    logged_user = request.user
-    target_user = get_object_or_404(User, id=id)
-    logged_role = None
-    target_role = None
-    try:
-        logged_role = Role.objects.get(user=logged_user).role
-    except Role.DoesNotExist:
-        logged_role = None
-    try:
-        target_role = Role.objects.get(user=target_user).role
-    except Role.DoesNotExist:
-        target_role = None
-    if logged_user == target_user:
-        return HttpResponseForbidden("You cannot deactivate yourself.")
-    if logged_role == "admin":
-        target_user.is_active = False
-        target_user.save()
-        users = User.objects.filter(is_active=True).select_related("role_profile")
-        return render(request, "user.html", {"users": users})
-    if logged_role == "principle":
-        if target_role in ["teacher"]:
-            target_user.is_active = False
-            target_user.save()
-            users = User.objects.filter(is_active=True).select_related("role_profile")
-            return render(request, "user.html", {"users": users})
-    return redirect("user")
+
+def delete_user(request, user_id):
+    logged_role = Role.objects.get(user=request.user)
+    target_user = get_object_or_404(User, id=user_id)
+    target_role = getattr(target_user, "role_profile", None)
+    target_school = getattr(target_role, "school", None)
+    logged_school = getattr(request.user.role_profile, "school", None)
+
+    if target_user == request.user:
+        messages.error(request, "Admin cannot delete himself.")
+        return redirect("user")
+
+    if logged_role.role == "admin":
+        target_user.delete()
+        messages.success(request, "✔ User deleted successfully!")
+        return redirect("user")
+
+    elif logged_role.role == "principal":
+        if target_role is None:
+            if logged_school and target_school == logged_school:
+                target_user.delete()
+                messages.success(request, "✔ Student deleted successfully!")
+            else:
+                messages.error(request, "Cannot delete student from another school.")
+        elif target_role.role == "teacher":
+            if logged_school and target_school == logged_school:
+                target_user.delete()
+                messages.success(request, "✔ Teacher deleted successfully!")
+            else:
+                messages.error(request, "Cannot delete teacher from another school.")
+        else:
+            messages.error(request, "Principal cannot delete this user.")
+        return redirect("user")
+
+    elif logged_role.role == "teacher":
+        if target_role is None:
+            if logged_school and target_school == logged_school:
+                target_user.delete()
+                messages.success(request, "✔ Student deleted successfully!")
+            else:
+                messages.error(request, "Cannot delete student from another school.")
+        else:
+            messages.error(request, "Teachers can only delete students.")
+        return redirect("user")
+
+    else:
+        messages.error(request, "You do not have permission to delete users.")
+        return redirect("user")
 
 
 def add_school(request):

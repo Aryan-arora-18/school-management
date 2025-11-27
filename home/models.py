@@ -5,6 +5,7 @@ from django.db import migrations, models
 from django.conf import settings
 
 import uuid
+
 class School(models.Model):
     sch_name = models.CharField(max_length=100, unique=True)
     address = models.CharField(max_length=255, blank=True)
@@ -17,7 +18,10 @@ class School(models.Model):
    
     def __str__(self):
         return self.sch_name
-
+    
+    
+    class Meta:
+        ordering = ["id"]
 
 class Students(models.Model):
     user = models.ForeignKey(
@@ -43,6 +47,10 @@ class Students(models.Model):
         return self.name
     
     
+    class Meta:
+        ordering = ["id"]
+    
+    
 
 class Role(models.Model):
     ROLE_CHOICES = (
@@ -59,8 +67,9 @@ class Role(models.Model):
         username = self.user.username if self.user else "UnknownUser"
         return f"{username} - {self.role or 'unassigned'}"
 
-
-
+        
+    class Meta:
+        ordering = ["id"]
 
 
 

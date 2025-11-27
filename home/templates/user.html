@@ -9,6 +9,7 @@
       <th>User Name</th>
       <th>User Email</th>
       <th>User role</th>
+      <th>User School</th>
       <th>Status</th>
 <th>Delete</th>
 
@@ -18,11 +19,17 @@
 
   <tbody>
   {% for u in users %}
+  
 <tr>
-    <td>{{ u.id }}</td>
+    <td>{{ u.id }}</td> 
     <td>{{ u.username }}</td>
-    <td>{{ u.email }}</td>
-    <td>{{ u.role.role|default:"No Role" }}</td>
+    <td>{{ u.email }}</td> 
+    <td>
+        
+        {{ u.role_profile.role|default:"No Role" }}
+    
+    </td>
+    <td>{{u.role_profile.school.sch_name|default:"can't find"}}</td>
     <td>
         {% if u.is_active %}
             <span class="badge bg-success">Active</span>
@@ -30,9 +37,27 @@
             <span class="badge bg-danger">Inactive</span>
         {% endif %}
     </td>
-    {% if u.role and u.role.role in "admin" %}
-    <td><a href="{% url 'delete_user' u.id %}" class="btn btn-danger btn-sm">Delete</a></td>
+   {% if request.user.role_profile.role == "admin" %}
+    <td><a class="btn btn-danger btn-sm" href="{% url 'delete_user' u.id %}">Delete</a></td>
+
+{% elif request.user.role_profile.role == "principal" %}
+    {% if u.role_profile.role == "teacher" or not u.role_profile %}
+        <td><a class="btn btn-danger btn-sm" href="{% url 'delete_user' u.id %}">Delete</a></td>
+    {% else %}
+        <td>No Permission</td>
     {% endif %}
+
+{% elif request.user.role_profile.role == "teacher" %}
+    {% if not u.role_profile %}  {# student #}
+        <td><a class="btn btn-danger btn-sm" href="{% url 'delete_user' u.id %}">Delete</a></td>
+    {% else %}
+        <td>No Permission</td>
+    {% endif %}
+
+{% else %}
+    <td>No Permission</td>
+{% endif %}
+
 </tr>
 {% endfor %}  
   </tbody>

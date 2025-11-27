@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Student App</title>
+    <title>Student Management</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -12,16 +12,14 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container d-flex align-items-center gap-2">
 
-        <a class="navbar-brand" href="/">StudentApp</a>
+        <a class="navbar-brand" href="/">Schools Data</a>
 
         {% if user.is_authenticated %}
           <a class="btn btn-outline-light" href="/add">+ Add Student</a>
         {% endif %}
-
         {% if user.is_authenticated and user.role_profile.role == "admin" %}
           <a class="btn btn-outline-light" href="/add_school">+ Add School</a>
         {% endif %}
-
         <a class="btn btn-outline-light" href="/register">+ Register</a>
         <a class="btn btn-outline-light" href="/students">Student List</a>
         <a class="btn btn-outline-light" href="/user">User List</a>
@@ -32,7 +30,7 @@
           {% if user.is_authenticated %}
               <div class="text-danger fw-bold text-center"
                   style="width: 100px; height:35px; line-height:35px;">
-                  {{ user.username|upper }}
+                  {{ user.username }}
               </div>
 
               {% if user.role_profile %}
